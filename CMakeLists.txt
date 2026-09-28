@@ -16,6 +16,7 @@ target_include_directories(clay PUBLIC
 
 add_executable(vane
     src/main.c
+    src/ui/renderer/clay_sdl3.c
 )
 
 target_include_directories(vane PRIVATE
