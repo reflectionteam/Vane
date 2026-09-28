@@ -16,13 +16,8 @@ static void SDL_Clay_RenderFillRoundedRect(SDL_Renderer *renderer, const SDL_FRe
     const int totalVertices = 4 + (4 * (numCircleSegments * 2)) + 2 * 4;
     const int totalIndices = 6 + (4 * (numCircleSegments * 3)) + 6 * 4;
 
-    SDL_Vertex *vertices = (SDL_Vertex *)SDL_malloc(sizeof(SDL_Vertex) * totalVertices);
-    int *indices = (int *)SDL_malloc(sizeof(int) * totalIndices);
-    if (!vertices || !indices) {
-        SDL_free(vertices);
-        SDL_free(indices);
-        return;
-    }
+    SDL_Vertex vertices[totalVertices];
+    int indices[totalIndices];
 
     // Center rectangle
     vertices[vertexCount++] = (SDL_Vertex){ {rect.x + clampedRadius, rect.y + clampedRadius}, color, {0, 0} };
@@ -106,9 +101,6 @@ static void SDL_Clay_RenderFillRoundedRect(SDL_Renderer *renderer, const SDL_FRe
     indices[indexCount++] = vertexCount - 1;
 
     SDL_RenderGeometry(renderer, NULL, vertices, vertexCount, indices, indexCount);
-
-    SDL_free(vertices);
-    SDL_free(indices);
 }
 
 static void SDL_Clay_RenderArc(SDL_Renderer *renderer, const SDL_FPoint center, const float radius, const float startAngle, const float endAngle, const float thickness, const Clay_Color color) {

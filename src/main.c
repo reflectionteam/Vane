@@ -24,6 +24,8 @@ int main(int argc, char *argv[]) {
     int width = 800;
     int height = 600;
 
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+
     SDL_Window *window = SDL_CreateWindow("Vane", width, height, SDL_WINDOW_RESIZABLE);
     if (!window) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create window: %s", SDL_GetError());
@@ -38,6 +40,9 @@ int main(int argc, char *argv[]) {
         SDL_Quit();
         return 1;
     }
+
+    SDL_SetRenderVSync(renderer, 1);
+    SDL_Log("Active renderer: %s", SDL_GetRendererName(renderer));
 
     // Initialize Clay SDL3 renderer & TTF
     Clay_SDL3Context clay_sdl3 = {0};
@@ -57,7 +62,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Initialize Clay
+    // Initialize Clay with 1024 elements (drops memory footprint from 5.5MB to 0.75MB)
+    Clay_SetMaxElementCount(1024);
     uint64_t total_memory_size = Clay_MinMemorySize();
     Clay_Arena clay_memory = Clay_CreateArenaWithCapacityAndMemory(total_memory_size, malloc(total_memory_size));
     if (!clay_memory.memory) {
