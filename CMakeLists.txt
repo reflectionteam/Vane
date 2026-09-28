@@ -3,6 +3,7 @@ project(Vane C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(SDL3 REQUIRED)
 find_package(SDL3_ttf REQUIRED)
@@ -16,9 +17,15 @@ target_include_directories(clay PUBLIC
 
 add_executable(vane
     src/main.c
+    src/core/app_state.c
+    src/ui/mainwindow/mainwindow.c
+    src/ui/views/sidebar.c
+    src/ui/views/overview_view.c
+    src/ui/views/projects_view.c
+    src/ui/views/settings_view.c
     src/ui/renderer/clay_sdl3.c
-    src/ui/styles/button_style.c
-    src/ui/widgets/button.c
+    src/ui/styles/button/button_style.c
+    src/ui/widgets/button/button.c
 )
 
 target_include_directories(vane PRIVATE
