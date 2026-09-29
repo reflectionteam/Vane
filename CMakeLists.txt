@@ -20,9 +20,7 @@ add_executable(vane
     src/core/app_state.c
     src/ui/mainwindow/mainwindow.c
     src/ui/views/sidebar.c
-    src/ui/views/overview_view.c
-    src/ui/views/projects_view.c
-    src/ui/views/settings_view.c
+    src/ui/views/content_view.c
     src/ui/renderer/clay_sdl3.c
     src/ui/styles/button/button_style.c
     src/ui/widgets/button/button.c

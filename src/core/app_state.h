@@ -1,9 +1,9 @@
 #pragma once
 
-typedef enum { TAB_OVERVIEW = 0, TAB_PROJECTS, TAB_SETTINGS, TAB_COUNT } AppTab;
+typedef enum { TAB_1 = 0, TAB_2, TAB_3, TAB_4, TAB_5, TAB_COUNT } AppTab;
 
 typedef struct {
-  AppTab active_tab;
+  int active_tab;
   int click_count;
 } AppState;
 

@@ -3,9 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ui/views/overview_view.h"
-#include "ui/views/projects_view.h"
-#include "ui/views/settings_view.h"
+#include "ui/views/content_view.h"
 #include "ui/views/sidebar.h"
 
 static void handle_clay_errors(Clay_ErrorData error_data) {
@@ -26,28 +24,18 @@ static void main_window_draw_frame(MainWindow *win) {
        {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                    .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
         .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
+    // Left side: Sidebar (5 dummy buttons)
+    sidebar_render(&win->state);
+
+    // Right side: Main content area
     CLAY(CLAY_ID("MainContentArea"),
          {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
                      .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
                      .padding = {32, 32, 32, 32},
                      .childGap = 20},
           .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
-      switch (win->state.active_tab) {
-      case TAB_OVERVIEW:
-        overview_view_render(&win->state);
-        break;
-      case TAB_PROJECTS:
-        projects_view_render(&win->state);
-        break;
-      case TAB_SETTINGS:
-        settings_view_render(&win->state);
-        break;
-      default:
-        break;
-      }
+      content_view_render(&win->state);
     }
-
-    sidebar_render(&win->state);
   }
 
   Clay_RenderCommandArray commands = Clay_EndLayout(delta_time);
