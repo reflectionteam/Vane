@@ -19,11 +19,17 @@ add_executable(vane
     src/main.c
     src/core/app_state.c
     src/ui/mainwindow/mainwindow.c
-    src/ui/views/sidebar.c
-    src/ui/views/content_view.c
+    src/ui/mainwindow/header/header.c
+    src/ui/mainwindow/sidebar/sidebar.c
+    src/ui/mainwindow/overview/overview.c
+    src/ui/mainwindow/mods/mods.c
+    src/ui/mainwindow/servers/servers.c
+    src/ui/mainwindow/screenshots/screenshots.c
+    src/ui/mainwindow/logs/logs.c
     src/ui/renderer/clay_sdl3.c
     src/ui/styles/button/button_style.c
     src/ui/widgets/button/button.c
+    src/ui/widgets/icon/icons.c
 )
 
 target_include_directories(vane PRIVATE

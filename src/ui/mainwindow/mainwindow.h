@@ -5,6 +5,11 @@
 #include <stdbool.h>
 
 #include "core/app_state.h"
+#include "ui/mainwindow/logs/logs.h"
+#include "ui/mainwindow/mods/mods.h"
+#include "ui/mainwindow/overview/overview.h"
+#include "ui/mainwindow/screenshots/screenshots.h"
+#include "ui/mainwindow/servers/servers.h"
 #include "ui/renderer/clay_sdl3.h"
 
 typedef struct {
@@ -18,6 +23,11 @@ typedef struct {
   Uint64 last_time;
 
   AppState state;
+  OverviewState overview_state;
+  ModsState mods_state;
+  ServersState servers_state;
+  ScreenshotsState screenshots_state;
+  LogsState logs_state;
 } MainWindow;
 
 bool main_window_init(MainWindow *win, const char *title, int width, int height);

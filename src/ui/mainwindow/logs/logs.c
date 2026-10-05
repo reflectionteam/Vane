@@ -1,0 +1,43 @@
+#include "ui/mainwindow/logs/logs.h"
+
+#include <clay.h>
+
+void logs_init(LogsState *state) {
+  if (!state) {
+    return;
+  }
+  state->dummy = 0;
+}
+
+void logs_render(LogsState *state) {
+  (void)state;
+
+  CLAY(CLAY_ID("LogsContent"),
+       {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
+                   .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
+                   .padding = {20, 20, 20, 20},
+                   .childGap = 16},
+        .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
+    CLAY(CLAY_ID("LogsHeaderBox"),
+         {.layout = {.sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
+                     .padding = {10, 12, 4, 4}},
+          .border = {.color = (Clay_Color){255, 255, 255, 255},
+                     .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
+          .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
+      CLAY_TEXT(CLAY_STRING("LOGS //"),
+                CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 20}));
+    }
+
+    CLAY(CLAY_ID("LogsPlaceholderCard"),
+         {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
+                     .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIT(0)},
+                     .padding = {16, 16, 16, 16},
+                     .childGap = 8},
+          .border = {
+              .color = (Clay_Color){100, 100, 100, 255},
+              .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}}}) {
+      CLAY_TEXT(CLAY_STRING("SYSTEM_READY // 0 ERRORS"),
+                CLAY_TEXT_CONFIG({.textColor = {180, 180, 180, 255}, .fontSize = 13}));
+    }
+  }
+}

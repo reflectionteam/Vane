@@ -3,7 +3,7 @@
 int main() {
   MainWindow app = {0};
 
-  if (!main_window_init(&app, "Vane", 800, 600)) {
+  if (!main_window_init(&app, "Vane", 960, 600)) {
     return 1;
   }
 

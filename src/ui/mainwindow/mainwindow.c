@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ui/views/content_view.h"
-#include "ui/views/sidebar.h"
+#include "ui/mainwindow/header/header.h"
+#include "ui/mainwindow/sidebar/sidebar.h"
 
 static void handle_clay_errors(Clay_ErrorData error_data) {
   SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Clay Error: %s", error_data.errorText.chars);
@@ -21,20 +21,51 @@ static void main_window_draw_frame(MainWindow *win) {
   Clay_BeginLayout();
 
   CLAY(CLAY_ID("RootContainer"),
-       {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+       {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
                    .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
+        .border = {.color = (Clay_Color){255, 255, 255, 255},
+                   .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
         .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
-    // Left side: Sidebar (5 dummy buttons)
-    sidebar_render(&win->state);
+    // Top: Header bar
+    HeaderActions header_actions = header_render();
+    if (header_actions.close_clicked) {
+      win->running = false;
+    }
+    if (header_actions.minimize_clicked) {
+      SDL_MinimizeWindow(win->window);
+    }
 
-    // Right side: Main content area
-    CLAY(CLAY_ID("MainContentArea"),
-         {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
-                     .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
-                     .padding = {32, 32, 32, 32},
-                     .childGap = 20},
+    // Body: Split (Left: Sidebar, Right: Main content)
+    CLAY(CLAY_ID("BodyContainer"),
+         {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                     .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
           .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
-      content_view_render(&win->state);
+      sidebar_render(&win->state);
+
+      CLAY(CLAY_ID("MainContentArea"),
+           {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
+                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
+            .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
+        switch (win->state.active_tab) {
+        case TAB_OVERVIEW:
+          overview_render(&win->overview_state);
+          break;
+        case TAB_MODS:
+          mods_render(&win->mods_state);
+          break;
+        case TAB_SERVERS:
+          servers_render(&win->servers_state);
+          break;
+        case TAB_SCREENSHOTS:
+          screenshots_render(&win->screenshots_state);
+          break;
+        case TAB_LOGS:
+          logs_render(&win->logs_state);
+          break;
+        default:
+          break;
+        }
+      }
     }
   }
 
@@ -86,6 +117,11 @@ bool main_window_init(MainWindow *win, const char *title, int width, int height)
   win->running = false;
   win->last_time = 0;
   app_state_init(&win->state);
+  overview_init(&win->overview_state);
+  mods_init(&win->mods_state);
+  servers_init(&win->servers_state);
+  screenshots_init(&win->screenshots_state);
+  logs_init(&win->logs_state);
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to init SDL: %s", SDL_GetError());

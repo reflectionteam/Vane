@@ -1,10 +1,16 @@
 #pragma once
 
-typedef enum { TAB_1 = 0, TAB_2, TAB_3, TAB_4, TAB_5, TAB_COUNT } AppTab;
+typedef enum {
+  TAB_OVERVIEW = 0,
+  TAB_MODS,
+  TAB_SERVERS,
+  TAB_SCREENSHOTS,
+  TAB_LOGS,
+  TAB_COUNT
+} AppTab;
 
 typedef struct {
-  int active_tab;
-  int click_count;
+  AppTab active_tab;
 } AppState;
 
 void app_state_init(AppState *state);
