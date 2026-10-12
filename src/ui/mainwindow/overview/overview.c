@@ -200,5 +200,111 @@ void overview_render(OverviewState *state, const SvgIconCache *icons) {
          {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(1)}},
           .backgroundColor = (Clay_Color){255, 255, 255, 255}}) {
     }
+
+    // 3. Library Section: LIBRARY // + Search Toolbar + Filter Pills + Cards Grid
+    CLAY(CLAY_ID("LibrarySection"),
+         {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
+                     .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
+                     .padding = {16, 16, 16, 16},
+                     .childGap = 12}}) {
+      // 3.1 Header badge [ LIBRARY // ]
+      CLAY(CLAY_ID("LibraryHeaderBadge"),
+           {.layout = {.sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
+                       .padding = {10, 12, 4, 4}},
+            .backgroundColor = (Clay_Color){45, 45, 45, 255}}) {
+        CLAY_TEXT(CLAY_STRING("LIBRARY //"),
+                  CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 20}));
+      }
+
+      // 3.2 Toolbar: Search Bar + 2 Action Buttons
+      CLAY(CLAY_ID("LibraryToolbarRow"),
+           {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(32)},
+                       .childGap = 10,
+                       .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
+        // Search bar (clean rectangular frame, no icon as requested)
+        Clay_ElementId search_id = CLAY_ID("LibrarySearchBar");
+        bool search_hover = Clay_PointerOver(search_id);
+
+        CLAY(search_id,
+             {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
+                         .padding = {10, 10, 4, 4},
+                         .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}},
+              .border = {.color = search_hover ? (Clay_Color){255, 255, 255, 255}
+                                               : (Clay_Color){100, 100, 100, 255},
+                         .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
+              .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
+        }
+
+        // Action Button 1 (solid gray rectangle)
+        Clay_ElementId act_btn1_id = CLAY_ID("LibraryActionBtn1");
+        bool act1_hover = Clay_PointerOver(act_btn1_id);
+        CLAY(act_btn1_id,
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(70), .height = CLAY_SIZING_GROW(0)}},
+              .backgroundColor = act1_hover ? (Clay_Color){115, 115, 115, 255}
+                                            : (Clay_Color){90, 90, 90, 255}}) {
+        }
+
+        // Action Button 2 (solid gray rectangle)
+        Clay_ElementId act_btn2_id = CLAY_ID("LibraryActionBtn2");
+        bool act2_hover = Clay_PointerOver(act_btn2_id);
+        CLAY(act_btn2_id,
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(70), .height = CLAY_SIZING_GROW(0)}},
+              .backgroundColor = act2_hover ? (Clay_Color){115, 115, 115, 255}
+                                            : (Clay_Color){90, 90, 90, 255}}) {
+        }
+      }
+
+      // 3.3 Filter Pills Row
+      CLAY(CLAY_ID("LibraryFilterRow"),
+           {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(26)},
+                       .childGap = 10,
+                       .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
+        Clay_ElementId pill1_id = CLAY_ID("LibraryFilterPill1");
+        bool pill1_hover = Clay_PointerOver(pill1_id);
+        CLAY(pill1_id,
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(85), .height = CLAY_SIZING_GROW(0)}},
+              .backgroundColor = pill1_hover ? (Clay_Color){125, 125, 125, 255}
+                                             : (Clay_Color){95, 95, 95, 255}}) {
+        }
+
+        Clay_ElementId pill2_id = CLAY_ID("LibraryFilterPill2");
+        bool pill2_hover = Clay_PointerOver(pill2_id);
+        CLAY(pill2_id,
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(85), .height = CLAY_SIZING_GROW(0)}},
+              .backgroundColor = pill2_hover ? (Clay_Color){125, 125, 125, 255}
+                                             : (Clay_Color){70, 70, 70, 255}}) {
+        }
+      }
+
+      // 3.4 Cards Grid: 2 Vertical rectangular cards
+      CLAY(CLAY_ID("LibraryCardsGrid"),
+           {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIT(0)},
+                       .childGap = 12}}) {
+        Clay_ElementId card1_id = CLAY_ID("LibraryCard1");
+        bool c1_hover = Clay_PointerOver(card1_id);
+        CLAY(card1_id,
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(135),
+                                    .height = CLAY_SIZING_FIXED(175)}},
+              .border = {.color = c1_hover ? (Clay_Color){255, 255, 255, 255}
+                                           : (Clay_Color){90, 90, 90, 255},
+                         .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
+              .backgroundColor = (Clay_Color){60, 60, 60, 255}}) {
+        }
+
+        Clay_ElementId card2_id = CLAY_ID("LibraryCard2");
+        bool c2_hover = Clay_PointerOver(card2_id);
+        CLAY(card2_id,
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(135),
+                                    .height = CLAY_SIZING_FIXED(175)}},
+              .border = {.color = c2_hover ? (Clay_Color){255, 255, 255, 255}
+                                           : (Clay_Color){90, 90, 90, 255},
+                         .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
+              .backgroundColor = (Clay_Color){60, 60, 60, 255}}) {
+        }
+      }
+    }
   }
 }
