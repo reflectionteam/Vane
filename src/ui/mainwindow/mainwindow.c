@@ -48,7 +48,7 @@ static void main_window_draw_frame(MainWindow *win) {
             .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
         switch (win->state.active_tab) {
         case TAB_OVERVIEW:
-          overview_render(&win->overview_state);
+          overview_render(&win->overview_state, &win->icons);
           break;
         case TAB_MODS:
           mods_render(&win->mods_state);
