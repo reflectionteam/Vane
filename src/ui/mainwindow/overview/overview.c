@@ -216,15 +216,15 @@ void overview_render(OverviewState *state, const SvgIconCache *icons) {
                      .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
                      .padding = {16, 16, 16, 16},
                      .childGap = 12}}) {
-      // 3.1 Header [ LIBRARY // ]
-      CLAY(CLAY_ID("LibraryHeader"),
+      // 3.1 Header badge [ LIBRARY // ]
+      CLAY(CLAY_ID("LibraryHeaderBadge"),
            {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
                        .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
-                       .padding = {0, 0, 0, 0},
+                       .padding = {10, 12, 6, 0},
                        .childAlignment = {.y = CLAY_ALIGN_Y_BOTTOM}},
-            .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
+            .backgroundColor = (Clay_Color){48, 48, 48, 255}}) {
         CLAY_TEXT(CLAY_STRING("LIBRARY //"),
-                  CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 20}));
+                  CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 20}));
       }
 
       // 3.2 Toolbar: Search Bar + 2 Action Buttons
