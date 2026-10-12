@@ -18,7 +18,7 @@ static void render_recent_instances_card(const SvgIconCache *icons) {
   CLAY(CLAY_ID("RecentInstancesContainer"),
        {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
                    .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
-                   .childGap = 4}}) {
+                   .childGap = 3}}) {
     // Header label
     CLAY(CLAY_ID("RecentInstancesLabel"),
          {.layout = {.sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
@@ -41,7 +41,7 @@ static void render_recent_instances_card(const SvgIconCache *icons) {
                                          : (Clay_Color){200, 200, 200, 255},
                      .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
           .backgroundColor =
-              card_hover ? (Clay_Color){25, 25, 25, 255} : (Clay_Color){0, 0, 0, 255}}) {
+              card_hover ? (Clay_Color){28, 28, 28, 255} : (Clay_Color){0, 0, 0, 255}}) {
       // Instance square thumbnail placeholder
       CLAY(CLAY_ID("RecentInstanceThumb"),
            {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(30), .height = CLAY_SIZING_FIXED(30)}},
@@ -77,14 +77,14 @@ static void render_play_button(void) {
   Clay_ElementId play_btn_id = CLAY_ID("PlayButton");
   bool play_hover = Clay_PointerOver(play_btn_id);
 
-  Clay_Color bg = play_hover ? (Clay_Color){220, 220, 220, 255} : (Clay_Color){255, 255, 255, 255};
+  Clay_Color bg = play_hover ? (Clay_Color){215, 215, 215, 255} : (Clay_Color){255, 255, 255, 255};
   Clay_Color text_col = (Clay_Color){0, 0, 0, 255};
 
   CLAY(play_btn_id,
-       {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(190), .height = CLAY_SIZING_FIXED(48)},
+       {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(185), .height = CLAY_SIZING_FIXED(48)},
                    .childAlignment = {.x = CLAY_ALIGN_X_CENTER, .y = CLAY_ALIGN_Y_CENTER}},
         .border = {.color = (Clay_Color){255, 255, 255, 255},
-                   .width = {.left = 2, .right = 2, .top = 2, .bottom = 2, .betweenChildren = 0}},
+                   .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
         .backgroundColor = bg}) {
     CLAY_TEXT(CLAY_STRING("PLAY"),
               CLAY_TEXT_CONFIG({.textColor = text_col, .fontSize = 20}));
@@ -99,7 +99,7 @@ static void render_recent_servers_card(const SvgIconCache *icons) {
        {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
                    .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
                    .childAlignment = {.x = CLAY_ALIGN_X_RIGHT},
-                   .childGap = 4}}) {
+                   .childGap = 3}}) {
     // Header label
     CLAY(CLAY_ID("RecentServersLabel"),
          {.layout = {.sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
@@ -122,7 +122,7 @@ static void render_recent_servers_card(const SvgIconCache *icons) {
                                          : (Clay_Color){200, 200, 200, 255},
                      .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
           .backgroundColor =
-              card_hover ? (Clay_Color){25, 25, 25, 255} : (Clay_Color){0, 0, 0, 255}}) {
+              card_hover ? (Clay_Color){28, 28, 28, 255} : (Clay_Color){0, 0, 0, 255}}) {
       // Left Chevron
       if (icons && icons->chevron_left) {
         CLAY_AUTO_ID(
@@ -166,18 +166,18 @@ void overview_render(OverviewState *state, const SvgIconCache *icons) {
     // 1. Top Section: Banner slot + Quick Launch Action Bar
     CLAY(CLAY_ID("OverviewTopSection"),
          {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
-                     .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(240)}}}) {
+                     .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(250)}}}) {
       // Geometric banner placeholder (no real Minecraft cover as requested)
       CLAY(CLAY_ID("BannerContainer"),
            {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
-            .backgroundColor = (Clay_Color){14, 14, 14, 255}}) {
+            .backgroundColor = (Clay_Color){12, 12, 12, 255}}) {
       }
 
       // Quick Launch Bar: RECENT INSTANCES + PLAY + RECENT SERVERS
       CLAY(CLAY_ID("QuickLaunchBar"),
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                        .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIT(0)},
-                       .padding = {16, 16, 8, 8},
+                       .padding = {16, 16, 10, 10},
                        .childAlignment = {.y = CLAY_ALIGN_Y_BOTTOM}}}) {
         render_recent_instances_card(icons);
 
@@ -211,7 +211,7 @@ void overview_render(OverviewState *state, const SvgIconCache *icons) {
       CLAY(CLAY_ID("LibraryHeaderBadge"),
            {.layout = {.sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
                        .padding = {10, 12, 4, 4}},
-            .backgroundColor = (Clay_Color){45, 45, 45, 255}}) {
+            .backgroundColor = (Clay_Color){48, 48, 48, 255}}) {
         CLAY_TEXT(CLAY_STRING("LIBRARY //"),
                   CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 20}));
       }
@@ -240,41 +240,41 @@ void overview_render(OverviewState *state, const SvgIconCache *icons) {
         Clay_ElementId act_btn1_id = CLAY_ID("LibraryActionBtn1");
         bool act1_hover = Clay_PointerOver(act_btn1_id);
         CLAY(act_btn1_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(70), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = act1_hover ? (Clay_Color){115, 115, 115, 255}
-                                            : (Clay_Color){90, 90, 90, 255}}) {
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(56), .height = CLAY_SIZING_GROW(0)}},
+              .backgroundColor = act1_hover ? (Clay_Color){105, 105, 105, 255}
+                                            : (Clay_Color){80, 80, 80, 255}}) {
         }
 
         // Action Button 2 (solid gray rectangle)
         Clay_ElementId act_btn2_id = CLAY_ID("LibraryActionBtn2");
         bool act2_hover = Clay_PointerOver(act_btn2_id);
         CLAY(act_btn2_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(70), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = act2_hover ? (Clay_Color){115, 115, 115, 255}
-                                            : (Clay_Color){90, 90, 90, 255}}) {
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(56), .height = CLAY_SIZING_GROW(0)}},
+              .backgroundColor = act2_hover ? (Clay_Color){105, 105, 105, 255}
+                                            : (Clay_Color){80, 80, 80, 255}}) {
         }
       }
 
       // 3.3 Filter Pills Row
       CLAY(CLAY_ID("LibraryFilterRow"),
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(26)},
+                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(24)},
                        .childGap = 10,
                        .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
         Clay_ElementId pill1_id = CLAY_ID("LibraryFilterPill1");
         bool pill1_hover = Clay_PointerOver(pill1_id);
         CLAY(pill1_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(85), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = pill1_hover ? (Clay_Color){125, 125, 125, 255}
-                                             : (Clay_Color){95, 95, 95, 255}}) {
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(74), .height = CLAY_SIZING_GROW(0)}},
+              .backgroundColor = pill1_hover ? (Clay_Color){110, 110, 110, 255}
+                                             : (Clay_Color){85, 85, 85, 255}}) {
         }
 
         Clay_ElementId pill2_id = CLAY_ID("LibraryFilterPill2");
         bool pill2_hover = Clay_PointerOver(pill2_id);
         CLAY(pill2_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(85), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = pill2_hover ? (Clay_Color){125, 125, 125, 255}
-                                             : (Clay_Color){70, 70, 70, 255}}) {
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(74), .height = CLAY_SIZING_GROW(0)}},
+              .backgroundColor = pill2_hover ? (Clay_Color){90, 90, 90, 255}
+                                             : (Clay_Color){65, 65, 65, 255}}) {
         }
       }
 
@@ -286,23 +286,23 @@ void overview_render(OverviewState *state, const SvgIconCache *icons) {
         Clay_ElementId card1_id = CLAY_ID("LibraryCard1");
         bool c1_hover = Clay_PointerOver(card1_id);
         CLAY(card1_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(135),
-                                    .height = CLAY_SIZING_FIXED(175)}},
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(130),
+                                    .height = CLAY_SIZING_FIXED(180)}},
               .border = {.color = c1_hover ? (Clay_Color){255, 255, 255, 255}
-                                           : (Clay_Color){90, 90, 90, 255},
+                                           : (Clay_Color){75, 75, 75, 255},
                          .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
-              .backgroundColor = (Clay_Color){60, 60, 60, 255}}) {
+              .backgroundColor = (Clay_Color){55, 55, 55, 255}}) {
         }
 
         Clay_ElementId card2_id = CLAY_ID("LibraryCard2");
         bool c2_hover = Clay_PointerOver(card2_id);
         CLAY(card2_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(135),
-                                    .height = CLAY_SIZING_FIXED(175)}},
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(130),
+                                    .height = CLAY_SIZING_FIXED(180)}},
               .border = {.color = c2_hover ? (Clay_Color){255, 255, 255, 255}
-                                           : (Clay_Color){90, 90, 90, 255},
+                                           : (Clay_Color){75, 75, 75, 255},
                          .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
-              .backgroundColor = (Clay_Color){60, 60, 60, 255}}) {
+              .backgroundColor = (Clay_Color){55, 55, 55, 255}}) {
         }
       }
     }
