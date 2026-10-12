@@ -2,51 +2,54 @@
 
 #include <clay.h>
 
-#include "ui/widgets/icon/icons.h"
-
-HeaderActions header_render(void) {
+HeaderActions header_render(const SvgIconCache *icons) {
   HeaderActions actions = {0};
+
+  Clay_ElementId close_btn_id = CLAY_ID("WindowCloseBtn");
+  Clay_ElementId min_btn_id = CLAY_ID("WindowMinBtn");
+  Clay_ElementId settings_id = CLAY_ID("HeaderSettingsBtn");
 
   Clay_PointerData pointer = Clay_GetPointerState();
 
-  // Settings button state
-  Clay_ElementId settings_id = CLAY_ID("HeaderSettingsBtn");
+  bool close_hover = Clay_PointerOver(close_btn_id);
+  bool min_hover = Clay_PointerOver(min_btn_id);
   bool settings_hover = Clay_PointerOver(settings_id);
-  if (settings_hover && (pointer.state == CLAY_POINTER_DATA_PRESSED_THIS_FRAME)) {
-    actions.settings_clicked = true;
+
+  if (pointer.state == CLAY_POINTER_DATA_PRESSED_THIS_FRAME) {
+    if (close_hover) {
+      actions.close_clicked = true;
+    }
+    if (min_hover) {
+      actions.minimize_clicked = true;
+    }
+    if (settings_hover) {
+      actions.settings_clicked = true;
+    }
   }
 
-  // Minimize button state
-  Clay_ElementId min_id = CLAY_ID("HeaderMinBtn");
-  bool min_hover = Clay_PointerOver(min_id);
-  if (min_hover && (pointer.state == CLAY_POINTER_DATA_PRESSED_THIS_FRAME)) {
-    actions.minimize_clicked = true;
-  }
-
-  // Close button state
-  Clay_ElementId close_id = CLAY_ID("HeaderCloseBtn");
-  bool close_hover = Clay_PointerOver(close_id);
-  if (close_hover && (pointer.state == CLAY_POINTER_DATA_PRESSED_THIS_FRAME)) {
-    actions.close_clicked = true;
-  }
-
+  // Top header bar container
   CLAY(CLAY_ID("HeaderBar"),
        {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                   .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(44)},
-                   .padding = {16, 16, 8, 8},
+                   .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(38)},
+                   .padding = {14, 14, 0, 0},
                    .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}},
         .border = {.color = (Clay_Color){255, 255, 255, 255},
                    .width = {.left = 0, .right = 0, .top = 0, .bottom = 1, .betweenChildren = 0}},
         .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
-    // Left group: Logo slot + title
+    // Left group: Logo + title
     CLAY(CLAY_ID("HeaderLeftGroup"),
          {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                      .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_GROW(0)},
                      .childGap = 12,
                      .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
-      ui_icon_logo_slot((Clay_Color){255, 255, 255, 255});
+      if (icons && icons->logo) {
+        CLAY_AUTO_ID(
+            {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(22), .height = CLAY_SIZING_FIXED(22)}},
+             .image = {.imageData = icons->logo}}) {
+        }
+      }
 
-      CLAY_TEXT(CLAY_STRING("WELCOME_TO_VANE //"),
+      CLAY_TEXT(CLAY_STRING("Welcome_to_VANE //"),
                 CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 15}));
     }
 
@@ -55,13 +58,13 @@ HeaderActions header_render(void) {
          {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}}}) {
     }
 
-    // Right group: SETTINGS + Minimize + Close
+    // Right group: SETTINGS button + window controls
     CLAY(CLAY_ID("HeaderRightGroup"),
          {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                      .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_GROW(0)},
                      .childGap = 14,
                      .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
-      // SETTINGS button
+      // SETTINGS Button
       CLAY(settings_id,
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                        .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(28)},
@@ -73,29 +76,42 @@ HeaderActions header_render(void) {
                  .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
             .backgroundColor =
                 settings_hover ? (Clay_Color){40, 40, 40, 255} : (Clay_Color){0, 0, 0, 255}}) {
-        ui_icon_settings((Clay_Color){255, 255, 255, 255});
+        if (icons && icons->settings) {
+          CLAY_AUTO_ID(
+              {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(15),
+                                     .height = CLAY_SIZING_FIXED(15)}},
+               .image = {.imageData = icons->settings}}) {
+          }
+        }
         CLAY_TEXT(CLAY_STRING("SETTINGS"),
                   CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 13}));
       }
 
-      // Minimize button
-      CLAY(min_id,
-           {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(28), .height = CLAY_SIZING_FIXED(28)},
-                       .childAlignment = {.x = CLAY_ALIGN_X_CENTER, .y = CLAY_ALIGN_Y_CENTER}},
-            .backgroundColor =
-                min_hover ? (Clay_Color){40, 40, 40, 255} : (Clay_Color){0, 0, 0, 255}}) {
-        CLAY_TEXT(CLAY_STRING("-"),
-                  CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 18}));
-      }
+      // Window Control Buttons (Minimize, Close)
+      CLAY(CLAY_ID("HeaderWindowControls"),
+           {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                       .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(28)},
+                       .childGap = 6,
+                       .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
+        // Minimize Button
+        CLAY(min_btn_id,
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(28), .height = CLAY_SIZING_FIXED(28)},
+                         .childAlignment = {.x = CLAY_ALIGN_X_CENTER, .y = CLAY_ALIGN_Y_CENTER}},
+              .backgroundColor =
+                  min_hover ? (Clay_Color){40, 40, 40, 255} : (Clay_Color){0, 0, 0, 255}}) {
+          CLAY_TEXT(CLAY_STRING("-"),
+                    CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 16}));
+        }
 
-      // Close button
-      CLAY(close_id,
-           {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(28), .height = CLAY_SIZING_FIXED(28)},
-                       .childAlignment = {.x = CLAY_ALIGN_X_CENTER, .y = CLAY_ALIGN_Y_CENTER}},
-            .backgroundColor =
-                close_hover ? (Clay_Color){80, 0, 0, 255} : (Clay_Color){0, 0, 0, 255}}) {
-        CLAY_TEXT(CLAY_STRING("X"),
-                  CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 15}));
+        // Close Button
+        CLAY(close_btn_id,
+             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(28), .height = CLAY_SIZING_FIXED(28)},
+                         .childAlignment = {.x = CLAY_ALIGN_X_CENTER, .y = CLAY_ALIGN_Y_CENTER}},
+              .backgroundColor =
+                  close_hover ? (Clay_Color){180, 40, 40, 255} : (Clay_Color){0, 0, 0, 255}}) {
+          CLAY_TEXT(CLAY_STRING("X"),
+                    CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 14}));
+        }
       }
     }
   }

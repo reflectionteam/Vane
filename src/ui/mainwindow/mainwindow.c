@@ -27,7 +27,7 @@ static void main_window_draw_frame(MainWindow *win) {
                    .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
         .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
     // Top: Header bar
-    HeaderActions header_actions = header_render();
+    HeaderActions header_actions = header_render(&win->icons);
     if (header_actions.close_clicked) {
       win->running = false;
     }
@@ -40,7 +40,7 @@ static void main_window_draw_frame(MainWindow *win) {
          {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                      .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
           .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
-      sidebar_render(&win->state);
+      sidebar_render(&win->state, &win->icons);
 
       CLAY(CLAY_ID("MainContentArea"),
            {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
@@ -185,6 +185,10 @@ bool main_window_init(MainWindow *win, const char *title, int width, int height)
   win->last_time = SDL_GetTicks();
   win->running = true;
 
+  if (!svg_loader_init(&win->icons, win->renderer, base_path)) {
+    SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to load some or all SVG icons");
+  }
+
   return true;
 }
 
@@ -204,6 +208,7 @@ void main_window_destroy(MainWindow *win) {
     return;
   }
 
+  svg_loader_destroy(&win->icons);
   clay_sdl3_destroy(&win->clay_sdl3);
   free(win->clay_memory.memory);
   win->clay_memory.memory = NULL;

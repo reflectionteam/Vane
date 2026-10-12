@@ -11,6 +11,7 @@
 #include "ui/mainwindow/screenshots/screenshots.h"
 #include "ui/mainwindow/servers/servers.h"
 #include "ui/renderer/clay_sdl3.h"
+#include "ui/renderer/svg_loader.h"
 
 typedef struct {
   SDL_Window *window;
@@ -21,6 +22,8 @@ typedef struct {
   int height;
   bool running;
   Uint64 last_time;
+
+  SvgIconCache icons;
 
   AppState state;
   OverviewState overview_state;
