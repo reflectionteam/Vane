@@ -74,20 +74,29 @@ static void render_recent_instances_card(const SvgIconCache *icons) {
 }
 
 static void render_play_button(void) {
+  Clay_ElementId outer_id = CLAY_ID("PlayButtonOuter");
   Clay_ElementId play_btn_id = CLAY_ID("PlayButton");
-  bool play_hover = Clay_PointerOver(play_btn_id);
+  bool play_hover = Clay_PointerOver(outer_id) || Clay_PointerOver(play_btn_id);
 
   Clay_Color bg = play_hover ? (Clay_Color){215, 215, 215, 255} : (Clay_Color){255, 255, 255, 255};
   Clay_Color text_col = (Clay_Color){0, 0, 0, 255};
 
-  CLAY(play_btn_id,
-       {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(185), .height = CLAY_SIZING_FIXED(48)},
+  // Outer border frame with gap
+  CLAY(outer_id,
+       {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(172), .height = CLAY_SIZING_FIXED(46)},
+                   .padding = {4, 4, 3, 3},
                    .childAlignment = {.x = CLAY_ALIGN_X_CENTER, .y = CLAY_ALIGN_Y_CENTER}},
         .border = {.color = (Clay_Color){255, 255, 255, 255},
                    .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
-        .backgroundColor = bg}) {
-    CLAY_TEXT(CLAY_STRING("PLAY"),
-              CLAY_TEXT_CONFIG({.textColor = text_col, .fontSize = 20}));
+        .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
+    // Inner solid PLAY button
+    CLAY(play_btn_id,
+         {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
+                     .childAlignment = {.x = CLAY_ALIGN_X_CENTER, .y = CLAY_ALIGN_Y_CENTER}},
+          .backgroundColor = bg}) {
+      CLAY_TEXT(CLAY_STRING("PLAY"),
+                CLAY_TEXT_CONFIG({.textColor = text_col, .fontSize = 18}));
+    }
   }
 }
 
