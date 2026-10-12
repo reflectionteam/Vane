@@ -8,6 +8,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(SDL3 REQUIRED)
 find_package(SDL3_ttf REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(RSVG REQUIRED librsvg-2.0 cairo)
+
 add_library(clay STATIC
     src/vendor/clay_impl.c
 )
@@ -27,6 +30,7 @@ add_executable(vane
     src/ui/mainwindow/screenshots/screenshots.c
     src/ui/mainwindow/logs/logs.c
     src/ui/renderer/clay_sdl3.c
+    src/ui/renderer/svg_loader.c
     src/ui/styles/button/button_style.c
     src/ui/widgets/button/button.c
     src/ui/widgets/icon/icons.c
@@ -35,12 +39,14 @@ add_executable(vane
 target_include_directories(vane PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${RSVG_INCLUDE_DIRS}
 )
 
 target_link_libraries(vane PRIVATE 
     clay 
     SDL3::SDL3
     SDL3_ttf::SDL3_ttf
+    ${RSVG_LIBRARIES}
 )
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
