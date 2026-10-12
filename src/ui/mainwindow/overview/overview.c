@@ -216,11 +216,13 @@ void overview_render(OverviewState *state, const SvgIconCache *icons) {
                      .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
                      .padding = {16, 16, 16, 16},
                      .childGap = 12}}) {
-      // 3.1 Header badge [ LIBRARY // ]
-      CLAY(CLAY_ID("LibraryHeaderBadge"),
-           {.layout = {.sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
-                       .padding = {10, 12, 4, 4}},
-            .backgroundColor = (Clay_Color){48, 48, 48, 255}}) {
+      // 3.1 Header [ LIBRARY // ]
+      CLAY(CLAY_ID("LibraryHeader"),
+           {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
+                       .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
+                       .padding = {0, 0, 0, 0},
+                       .childAlignment = {.y = CLAY_ALIGN_Y_BOTTOM}},
+            .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
         CLAY_TEXT(CLAY_STRING("LIBRARY //"),
                   CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 20}));
       }
