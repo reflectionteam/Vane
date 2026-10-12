@@ -151,9 +151,9 @@ bool main_window_init(MainWindow *win, const char *title, int width, int height)
   char font_path[512] = {0};
   const char *base_path = SDL_GetBasePath();
   if (base_path) {
-    snprintf(font_path, sizeof(font_path), "%sassets/fonts/GoogleSansCode-Regular.ttf", base_path);
+    snprintf(font_path, sizeof(font_path), "%sassets/fonts/GoogleSansCode-Medium.ttf", base_path);
   } else {
-    snprintf(font_path, sizeof(font_path), "assets/fonts/GoogleSansCode-Regular.ttf");
+    snprintf(font_path, sizeof(font_path), "assets/fonts/GoogleSansCode-Medium.ttf");
   }
 
   if (!clay_sdl3_init(&win->clay_sdl3, win->renderer, font_path, 18.0f)) {

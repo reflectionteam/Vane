@@ -5,9 +5,13 @@
 #include <clay.h>
 #include <stdbool.h>
 
+#define CLAY_SDL3_MAX_FONT_SIZES 72
+
 typedef struct {
   SDL_Renderer *renderer;
   TTF_TextEngine *text_engine;
+  char font_path[512];
+  TTF_Font *sized_fonts[CLAY_SDL3_MAX_FONT_SIZES];
   TTF_Font **fonts;
   size_t font_count;
 } Clay_SDL3Context;

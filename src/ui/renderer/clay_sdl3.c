@@ -1,6 +1,8 @@
 #include "ui/renderer/clay_sdl3.h"
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static const int NUM_CIRCLE_SEGMENTS = 16;
 
@@ -169,11 +171,41 @@ static void sdl_clay_render_arc(SDL_Renderer *renderer, const SDL_FPoint center,
   }
 }
 
+static TTF_Font *clay_sdl3_get_font(Clay_SDL3Context *ctx, int font_size) {
+  if (!ctx) {
+    return NULL;
+  }
+  if (font_size < 8) {
+    font_size = 8;
+  }
+  if (font_size >= CLAY_SDL3_MAX_FONT_SIZES) {
+    font_size = CLAY_SDL3_MAX_FONT_SIZES - 1;
+  }
+
+  if (!ctx->sized_fonts[font_size]) {
+    if (strlen(ctx->font_path) > 0) {
+      TTF_Font *f = TTF_OpenFont(ctx->font_path, (float)font_size);
+      if (f) {
+        TTF_SetFontHinting(f, TTF_HINTING_LIGHT);
+        ctx->sized_fonts[font_size] = f;
+      }
+    }
+    if (!ctx->sized_fonts[font_size] && ctx->fonts && ctx->fonts[0]) {
+      return ctx->fonts[0];
+    }
+  }
+
+  return ctx->sized_fonts[font_size] ? ctx->sized_fonts[font_size]
+                                     : (ctx->fonts ? ctx->fonts[0] : NULL);
+}
+
 bool clay_sdl3_init(Clay_SDL3Context *ctx, SDL_Renderer *renderer, const char *font_path,
                     float default_font_size) {
   if (!ctx || !renderer) {
     return false;
   }
+
+  memset(ctx, 0, sizeof(*ctx));
 
   if (!TTF_Init()) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to initialize SDL_ttf: %s", SDL_GetError());
@@ -199,10 +231,15 @@ bool clay_sdl3_init(Clay_SDL3Context *ctx, SDL_Renderer *renderer, const char *f
   TTF_Font *font = NULL;
   if (font_path) {
     font = TTF_OpenFont(font_path, default_font_size);
+    if (font) {
+      snprintf(ctx->font_path, sizeof(ctx->font_path), "%s", font_path);
+    }
   }
 
   if (!font) {
     const char *fallback_paths[] = {
+        "assets/fonts/GoogleSansCode-Medium.ttf",
+        "../assets/fonts/GoogleSansCode-Medium.ttf",
         "assets/fonts/GoogleSansCode-Regular.ttf",
         "../assets/fonts/GoogleSansCode-Regular.ttf",
         "assets/fonts/Roboto-Regular.ttf",
@@ -211,6 +248,7 @@ bool clay_sdl3_init(Clay_SDL3Context *ctx, SDL_Renderer *renderer, const char *f
     for (int i = 0; fallback_paths[i] != NULL; i++) {
       font = TTF_OpenFont(fallback_paths[i], default_font_size);
       if (font) {
+        snprintf(ctx->font_path, sizeof(ctx->font_path), "%s", fallback_paths[i]);
         break;
       }
     }
@@ -226,13 +264,38 @@ bool clay_sdl3_init(Clay_SDL3Context *ctx, SDL_Renderer *renderer, const char *f
     return false;
   }
 
+  TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
   ctx->fonts[0] = font;
+  int def_size = (int)default_font_size;
+  if (def_size >= 8 && def_size < CLAY_SDL3_MAX_FONT_SIZES) {
+    ctx->sized_fonts[def_size] = font;
+  }
+
   return true;
 }
 
 void clay_sdl3_destroy(Clay_SDL3Context *ctx) {
   if (!ctx) {
     return;
+  }
+
+  for (int i = 0; i < CLAY_SDL3_MAX_FONT_SIZES; i++) {
+    if (ctx->sized_fonts[i]) {
+      // Avoid double close if sized_fonts[i] == ctx->fonts[0]
+      bool in_fonts = false;
+      if (ctx->fonts) {
+        for (size_t j = 0; j < ctx->font_count; j++) {
+          if (ctx->fonts[j] == ctx->sized_fonts[i]) {
+            in_fonts = true;
+            break;
+          }
+        }
+      }
+      if (!in_fonts) {
+        TTF_CloseFont(ctx->sized_fonts[i]);
+      }
+      ctx->sized_fonts[i] = NULL;
+    }
   }
 
   if (ctx->fonts) {
@@ -256,16 +319,15 @@ void clay_sdl3_destroy(Clay_SDL3Context *ctx) {
 Clay_Dimensions clay_sdl3_measure_text(Clay_StringSlice text, Clay_TextElementConfig *config,
                                        void *user_data) {
   Clay_SDL3Context *ctx = (Clay_SDL3Context *)user_data;
-  if (!ctx || !ctx->fonts || config->fontId >= ctx->font_count) {
+  if (!ctx) {
     return (Clay_Dimensions){0, 0};
   }
 
-  TTF_Font *font = ctx->fonts[config->fontId];
+  TTF_Font *font = clay_sdl3_get_font(ctx, (int)config->fontSize);
   if (!font) {
     return (Clay_Dimensions){0, 0};
   }
 
-  TTF_SetFontSize(font, config->fontSize);
   int width = 0;
   int height = 0;
   if (!TTF_GetStringSize(font, text.chars, text.length, &width, &height)) {
@@ -304,17 +366,17 @@ void clay_sdl3_render(Clay_SDL3Context *ctx, Clay_RenderCommandArray *commands) 
     }
     case CLAY_RENDER_COMMAND_TYPE_TEXT: {
       Clay_TextRenderData *config = &rcmd->renderData.text;
-      if (config->fontId >= ctx->font_count || !ctx->fonts[config->fontId]) {
+      TTF_Font *font = clay_sdl3_get_font(ctx, (int)config->fontSize);
+      if (!font) {
         break;
       }
-      TTF_Font *font = ctx->fonts[config->fontId];
-      TTF_SetFontSize(font, config->fontSize);
+
       TTF_Text *text = TTF_CreateText(ctx->text_engine, font, config->stringContents.chars,
                                       config->stringContents.length);
       if (text) {
         TTF_SetTextColor(text, (Uint8)config->textColor.r, (Uint8)config->textColor.g,
                          (Uint8)config->textColor.b, (Uint8)config->textColor.a);
-        TTF_DrawRendererText(text, rect.x, rect.y);
+        TTF_DrawRendererText(text, SDL_roundf(rect.x), SDL_roundf(rect.y));
         TTF_DestroyText(text);
       }
       break;
