@@ -279,9 +279,11 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
                        .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(32)},
                        .childGap = 10,
                        .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
-        // Search bar with blue border, search icon, and SEARCH... placeholder
+        // Search bar with animated border (gray in split view, white in fullscreen)
         Clay_ElementId search_id = CLAY_ID("LibrarySearchBar");
         bool search_hover = Clay_PointerOver(search_id);
+        uint8_t search_border_val = (uint8_t)(100.0f + (255.0f - 100.0f) * anim);
+        uint8_t current_search_border = search_hover ? 255 : search_border_val;
 
         CLAY(search_id,
              {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
@@ -289,8 +291,7 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
                          .padding = {10, 10, 0, 0},
                          .childGap = 8,
                          .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}},
-              .border = {.color = search_hover ? (Clay_Color){76, 170, 239, 255}
-                                               : (Clay_Color){12, 140, 233, 255},
+              .border = {.color = (Clay_Color){current_search_border, current_search_border, current_search_border, 255},
                          .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
               .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
           // Search icon
