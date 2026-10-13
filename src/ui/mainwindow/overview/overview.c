@@ -187,7 +187,7 @@ static void render_library_instance_card(int index, const char *name,
 
   CLAY(card_id,
        {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
-                   .sizing = {.width = CLAY_SIZING_FIXED(130), .height = CLAY_SIZING_FIT(0)},
+                   .sizing = {.width = CLAY_SIZING_FIXED(130), .height = CLAY_SIZING_FIXED(180)},
                    .padding = {6, 6, 6, 6},
                    .childGap = 5},
         .border = {.color = (Clay_Color){current_border, current_border, current_border, 255},
@@ -201,11 +201,11 @@ static void render_library_instance_card(int index, const char *name,
           .backgroundColor = (Clay_Color){22, 22, 22, 255}}) {
     }
 
-    // 2. Name badge
+    // 2. Name badge: aligned text baseline to bottom edge of frame
     CLAY(CLAY_IDI("InstanceNameBadge", index),
          {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                     .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
-                     .padding = {4, 4, 1, 1}},
+                     .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(11)},
+                     .padding = {.left = 0, .right = 6, .top = 0, .bottom = 0}},
           .backgroundColor = (Clay_Color){badge_val, badge_val, badge_val, 255}}) {
       Clay_String name_str = (Clay_String){
           .chars = name ? name : "name_instance",
@@ -216,11 +216,11 @@ static void render_library_instance_card(int index, const char *name,
                 CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 11}));
     }
 
-    // 3. Version badge
+    // 3. Version badge: aligned text baseline to bottom edge of frame
     CLAY(CLAY_IDI("InstanceVerBadge", index),
          {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                     .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
-                     .padding = {4, 4, 1, 1}},
+                     .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(10)},
+                     .padding = {.left = 0, .right = 4, .top = 0, .bottom = 0}},
           .backgroundColor = (Clay_Color){badge_val, badge_val, badge_val, 255}}) {
       Clay_String ver_str = (Clay_String){
           .chars = version ? version : "Fabric 1.21.4",
