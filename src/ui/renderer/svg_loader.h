@@ -19,6 +19,7 @@ typedef struct {
   SDL_Texture *chevron_left;
   SDL_Texture *chevron_right;
   SDL_Texture *chevron_up;
+  SDL_Texture *search;
 } SvgIconCache;
 
 typedef enum {

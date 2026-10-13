@@ -262,86 +262,76 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
                      .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
                      .padding = {16, 16, 16, 16},
                      .childGap = 12}}) {
-      // 3.1 Header row with badge [ LIBRARY // ] and toggle button
-      CLAY(CLAY_ID("LibraryHeaderRow"),
+      // 3.1 Header badge [ LIBRARY // ]
+      CLAY(CLAY_ID("LibraryHeaderBadge"),
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(22)},
-                       .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
-        CLAY(CLAY_ID("LibraryHeaderBadge"),
-             {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                         .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(22)},
-                         .padding = {.left = 0, .right = 14, .top = 0, .bottom = 0}},
-              .backgroundColor = (Clay_Color){143, 143, 143, 255}}) {
-          CLAY_TEXT(CLAY_STRING("LIBRARY //"),
-                    CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 22}));
-        }
-
-        CLAY(CLAY_ID("LibraryHeaderSpacer"),
-             {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}}}) {
-        }
-
-        Clay_ElementId toggle_id = CLAY_ID("LibraryFullscreenToggle");
-        bool toggle_hover = Clay_PointerOver(toggle_id);
-        if (pointer.state == CLAY_POINTER_DATA_PRESSED_THIS_FRAME && toggle_hover && state) {
-          state->is_expanded = !state->is_expanded;
-        }
-
-        CLAY(toggle_id,
-             {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                         .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(22)},
-                         .padding = {8, 8, 3, 3},
-                         .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}},
-              .border = {.color = toggle_hover ? (Clay_Color){255, 255, 255, 255}
-                                               : (Clay_Color){80, 80, 80, 255},
-                         .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
-              .backgroundColor = toggle_hover ? (Clay_Color){35, 35, 35, 255}
-                                              : (Clay_Color){0, 0, 0, 255}}) {
-          if (state && state->is_expanded) {
-            CLAY_TEXT(CLAY_STRING("COLLAPSE [v]"),
-                      CLAY_TEXT_CONFIG({.textColor = {200, 200, 200, 255}, .fontSize = 11}));
-          } else {
-            CLAY_TEXT(CLAY_STRING("EXPAND [^]"),
-                      CLAY_TEXT_CONFIG({.textColor = {160, 160, 160, 255}, .fontSize = 11}));
-          }
-        }
+                       .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(22)},
+                       .padding = {.left = 0, .right = 14, .top = 0, .bottom = 0}},
+            .backgroundColor = (Clay_Color){255, 255, 255, 255}}) {
+        CLAY_TEXT(CLAY_STRING("LIBRARY //"),
+                  CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 22}));
       }
 
-      // 3.2 Toolbar: Search Bar + 2 Action Buttons
+      // 3.2 Toolbar: Search Bar + "+  NEW GROUP" Button
       CLAY(CLAY_ID("LibraryToolbarRow"),
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                        .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(32)},
                        .childGap = 10,
                        .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
-        // Search bar (clean rectangular frame, no icon as requested)
+        // Search bar with blue border, search icon, and SEARCH... placeholder
         Clay_ElementId search_id = CLAY_ID("LibrarySearchBar");
         bool search_hover = Clay_PointerOver(search_id);
 
         CLAY(search_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
-                         .padding = {10, 10, 4, 4},
+             {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                         .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
+                         .padding = {10, 10, 0, 0},
+                         .childGap = 8,
                          .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}},
-              .border = {.color = search_hover ? (Clay_Color){255, 255, 255, 255}
-                                               : (Clay_Color){100, 100, 100, 255},
+              .border = {.color = search_hover ? (Clay_Color){76, 170, 239, 255}
+                                               : (Clay_Color){12, 140, 233, 255},
                          .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
               .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
+          // Search icon
+          if (icons && icons->search) {
+            CLAY_AUTO_ID(
+                {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(14),
+                                       .height = CLAY_SIZING_FIXED(14)}},
+                 .image = {.imageData = icons->search}}) {
+            }
+          }
+
+          // Search placeholder or query
+          if (state && state->search_query[0] != '\0') {
+            Clay_String query_str = (Clay_String){
+                .chars = state->search_query,
+                .length = (int32_t)strlen(state->search_query),
+                .isStaticallyAllocated = false,
+            };
+            CLAY_TEXT(query_str,
+                      CLAY_TEXT_CONFIG({.textColor = {255, 255, 255, 255}, .fontSize = 12}));
+          } else {
+            CLAY_TEXT(CLAY_STRING("SEARCH..."),
+                      CLAY_TEXT_CONFIG({.textColor = {102, 102, 102, 255}, .fontSize = 12}));
+          }
         }
 
-        // Action Button 1 (solid gray rectangle)
-        Clay_ElementId act_btn1_id = CLAY_ID("LibraryActionBtn1");
-        bool act1_hover = Clay_PointerOver(act_btn1_id);
-        CLAY(act_btn1_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(56), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = act1_hover ? (Clay_Color){105, 105, 105, 255}
-                                            : (Clay_Color){80, 80, 80, 255}}) {
-        }
+        // "+  NEW GROUP" Button
+        Clay_ElementId new_group_id = CLAY_ID("LibraryNewGroupBtn");
+        bool new_group_hover = Clay_PointerOver(new_group_id);
 
-        // Action Button 2 (solid gray rectangle)
-        Clay_ElementId act_btn2_id = CLAY_ID("LibraryActionBtn2");
-        bool act2_hover = Clay_PointerOver(act_btn2_id);
-        CLAY(act_btn2_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(56), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = act2_hover ? (Clay_Color){105, 105, 105, 255}
-                                            : (Clay_Color){80, 80, 80, 255}}) {
+        CLAY(new_group_id,
+             {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                         .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_GROW(0)},
+                         .padding = {14, 14, 0, 0},
+                         .childGap = 8,
+                         .childAlignment = {.x = CLAY_ALIGN_X_CENTER, .y = CLAY_ALIGN_Y_CENTER}},
+              .backgroundColor = new_group_hover ? (Clay_Color){105, 105, 105, 255}
+                                                 : (Clay_Color){84, 84, 84, 255}}) {
+          CLAY_TEXT(CLAY_STRING("+"),
+                    CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 14}));
+          CLAY_TEXT(CLAY_STRING("NEW GROUP"),
+                    CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 12}));
         }
       }
 

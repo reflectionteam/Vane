@@ -151,6 +151,10 @@ bool svg_loader_init(SvgIconCache *cache, SDL_Renderer *renderer, const char *as
   build_asset_path(path, sizeof(path), assets_base_path, "chevron-up.svg");
   cache->chevron_up = svg_loader_render(renderer, path, 16, 16, SVG_COLOR_WHITE);
 
+  // 4. Search icon: 14x14
+  build_asset_path(path, sizeof(path), assets_base_path, "search.svg");
+  cache->search = svg_loader_render(renderer, path, 14, 14, SVG_COLOR_ORIGINAL);
+
   return true;
 }
 
@@ -174,6 +178,7 @@ void svg_loader_destroy(SvgIconCache *cache) {
   if (cache->chevron_left) SDL_DestroyTexture(cache->chevron_left);
   if (cache->chevron_right) SDL_DestroyTexture(cache->chevron_right);
   if (cache->chevron_up) SDL_DestroyTexture(cache->chevron_up);
+  if (cache->search) SDL_DestroyTexture(cache->search);
 
   memset(cache, 0, sizeof(*cache));
 }
