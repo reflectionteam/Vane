@@ -255,18 +255,18 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
   }
 
   float anim = state ? state->animation_progress : 0.0f;
-  float top_height = 250.0f * (1.0f - anim);
+  float top_percent = 0.5f * (1.0f - anim);
 
   // Main Overview Container
   CLAY(CLAY_ID("OverviewContent"),
        {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
                    .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
         .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
-    // 1. Top Section: Banner slot + Quick Launch Action Bar
-    if (top_height > 0.1f) {
+    // 1. Top Section: Banner slot + Quick Launch Action Bar (50% in standard view, animates to 0% on full expansion)
+    if (top_percent > 0.001f) {
       CLAY(CLAY_ID("OverviewTopSection"),
            {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
-                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(top_height)}},
+                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_PERCENT(top_percent)}},
             .clip = {.vertical = true}}) {
         // Geometric banner placeholder (no real Minecraft cover as requested)
         CLAY(CLAY_ID("BannerContainer"),
