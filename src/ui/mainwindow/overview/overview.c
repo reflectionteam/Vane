@@ -317,9 +317,12 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
           }
         }
 
-        // "+  NEW GROUP" Button
+        // "+  NEW GROUP" Button: transitions accent from gray (84) to white (255) on fullscreen
         Clay_ElementId new_group_id = CLAY_ID("LibraryNewGroupBtn");
         bool new_group_hover = Clay_PointerOver(new_group_id);
+        uint8_t btn_val = (uint8_t)(84.0f + (255.0f - 84.0f) * anim);
+        uint8_t btn_hover_val = (uint8_t)(105.0f + (230.0f - 105.0f) * anim);
+        uint8_t current_btn_bg = new_group_hover ? btn_hover_val : btn_val;
 
         CLAY(new_group_id,
              {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
@@ -327,8 +330,7 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
                          .padding = {14, 14, 0, 0},
                          .childGap = 8,
                          .childAlignment = {.x = CLAY_ALIGN_X_CENTER, .y = CLAY_ALIGN_Y_CENTER}},
-              .backgroundColor = new_group_hover ? (Clay_Color){105, 105, 105, 255}
-                                                 : (Clay_Color){84, 84, 84, 255}}) {
+              .backgroundColor = (Clay_Color){current_btn_bg, current_btn_bg, current_btn_bg, 255}}) {
           CLAY_TEXT(CLAY_STRING("+"),
                     CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 14}));
           CLAY_TEXT(CLAY_STRING("NEW GROUP"),
@@ -336,7 +338,12 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
         }
       }
 
-      // 3.3 Filter Pills Row
+      // 3.3 Filter Pills Row: transitions accent from gray to white on fullscreen
+      uint8_t pill1_val = (uint8_t)(85.0f + (255.0f - 85.0f) * anim);
+      uint8_t pill1_hover_val = (uint8_t)(110.0f + (230.0f - 110.0f) * anim);
+      uint8_t pill2_val = (uint8_t)(65.0f + (150.0f - 65.0f) * anim);
+      uint8_t pill2_hover_val = (uint8_t)(90.0f + (175.0f - 90.0f) * anim);
+
       CLAY(CLAY_ID("LibraryFilterRow"),
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                        .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(24)},
@@ -344,44 +351,46 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
                        .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
         Clay_ElementId pill1_id = CLAY_ID("LibraryFilterPill1");
         bool pill1_hover = Clay_PointerOver(pill1_id);
+        uint8_t p1_bg = pill1_hover ? pill1_hover_val : pill1_val;
         CLAY(pill1_id,
              {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(74), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = pill1_hover ? (Clay_Color){110, 110, 110, 255}
-                                             : (Clay_Color){85, 85, 85, 255}}) {
+              .backgroundColor = (Clay_Color){p1_bg, p1_bg, p1_bg, 255}}) {
         }
 
         Clay_ElementId pill2_id = CLAY_ID("LibraryFilterPill2");
         bool pill2_hover = Clay_PointerOver(pill2_id);
+        uint8_t p2_bg = pill2_hover ? pill2_hover_val : pill2_val;
         CLAY(pill2_id,
              {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(74), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = pill2_hover ? (Clay_Color){90, 90, 90, 255}
-                                             : (Clay_Color){65, 65, 65, 255}}) {
+              .backgroundColor = (Clay_Color){p2_bg, p2_bg, p2_bg, 255}}) {
         }
       }
 
-      // 3.4 Cards Grid: 2 Vertical rectangular cards
+      // 3.4 Cards Grid: card borders transition from gray (75) to white (255) on fullscreen
+      uint8_t card_border_val = (uint8_t)(75.0f + (255.0f - 75.0f) * anim);
+
       CLAY(CLAY_ID("LibraryCardsGrid"),
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                        .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIT(0)},
                        .childGap = 12}}) {
         Clay_ElementId card1_id = CLAY_ID("LibraryCard1");
         bool c1_hover = Clay_PointerOver(card1_id);
+        uint8_t c1_bcol = c1_hover ? 255 : card_border_val;
         CLAY(card1_id,
              {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(130),
                                     .height = CLAY_SIZING_FIXED(180)}},
-              .border = {.color = c1_hover ? (Clay_Color){255, 255, 255, 255}
-                                           : (Clay_Color){75, 75, 75, 255},
+              .border = {.color = (Clay_Color){c1_bcol, c1_bcol, c1_bcol, 255},
                          .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
               .backgroundColor = (Clay_Color){55, 55, 55, 255}}) {
         }
 
         Clay_ElementId card2_id = CLAY_ID("LibraryCard2");
         bool c2_hover = Clay_PointerOver(card2_id);
+        uint8_t c2_bcol = c2_hover ? 255 : card_border_val;
         CLAY(card2_id,
              {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(130),
                                     .height = CLAY_SIZING_FIXED(180)}},
-              .border = {.color = c2_hover ? (Clay_Color){255, 255, 255, 255}
-                                           : (Clay_Color){75, 75, 75, 255},
+              .border = {.color = (Clay_Color){c2_bcol, c2_bcol, c2_bcol, 255},
                          .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
               .backgroundColor = (Clay_Color){55, 55, 55, 255}}) {
         }
