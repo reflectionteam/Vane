@@ -177,6 +177,62 @@ static void render_recent_servers_card(const SvgIconCache *icons) {
   }
 }
 
+static void render_library_instance_card(int index, const char *name,
+                                         const char *version, float anim) {
+  Clay_ElementId card_id = CLAY_IDI("LibraryCard", index);
+  bool card_hover = Clay_PointerOver(card_id);
+  uint8_t border_val = (uint8_t)(75.0f + (255.0f - 75.0f) * anim);
+  uint8_t current_border = card_hover ? 255 : border_val;
+  uint8_t badge_val = (uint8_t)(143.0f + (255.0f - 143.0f) * anim);
+
+  CLAY(card_id,
+       {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
+                   .sizing = {.width = CLAY_SIZING_FIXED(130), .height = CLAY_SIZING_FIT(0)},
+                   .padding = {6, 6, 6, 6},
+                   .childGap = 5},
+        .border = {.color = (Clay_Color){current_border, current_border, current_border, 255},
+                   .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
+        .backgroundColor = card_hover ? (Clay_Color){18, 18, 18, 255} : (Clay_Color){0, 0, 0, 255}}) {
+    // 1. Image / Thumbnail template placeholder (clean bordered slot, no image as requested)
+    CLAY(CLAY_IDI("InstanceThumb", index),
+         {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(104)}},
+          .border = {.color = (Clay_Color){current_border, current_border, current_border, 255},
+                     .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
+          .backgroundColor = (Clay_Color){22, 22, 22, 255}}) {
+    }
+
+    // 2. Name badge
+    CLAY(CLAY_IDI("InstanceNameBadge", index),
+         {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                     .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
+                     .padding = {4, 4, 1, 1}},
+          .backgroundColor = (Clay_Color){badge_val, badge_val, badge_val, 255}}) {
+      Clay_String name_str = (Clay_String){
+          .chars = name ? name : "name_instance",
+          .length = (int32_t)strlen(name ? name : "name_instance"),
+          .isStaticallyAllocated = false,
+      };
+      CLAY_TEXT(name_str,
+                CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 11}));
+    }
+
+    // 3. Version badge
+    CLAY(CLAY_IDI("InstanceVerBadge", index),
+         {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                     .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIT(0)},
+                     .padding = {4, 4, 1, 1}},
+          .backgroundColor = (Clay_Color){badge_val, badge_val, badge_val, 255}}) {
+      Clay_String ver_str = (Clay_String){
+          .chars = version ? version : "Fabric 1.21.4",
+          .length = (int32_t)strlen(version ? version : "Fabric 1.21.4"),
+          .isStaticallyAllocated = false,
+      };
+      CLAY_TEXT(ver_str,
+                CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 10}));
+    }
+  }
+}
+
 void overview_render(OverviewState *state, const SvgIconCache *icons, float delta_time) {
   Clay_PointerData pointer = Clay_GetPointerState();
 
@@ -339,62 +395,12 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
         }
       }
 
-      // 3.3 Filter Pills Row: transitions accent from gray to white on fullscreen
-      uint8_t pill1_val = (uint8_t)(85.0f + (255.0f - 85.0f) * anim);
-      uint8_t pill1_hover_val = (uint8_t)(110.0f + (230.0f - 110.0f) * anim);
-      uint8_t pill2_val = (uint8_t)(65.0f + (150.0f - 65.0f) * anim);
-      uint8_t pill2_hover_val = (uint8_t)(90.0f + (175.0f - 90.0f) * anim);
-
-      CLAY(CLAY_ID("LibraryFilterRow"),
-           {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(24)},
-                       .childGap = 10,
-                       .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
-        Clay_ElementId pill1_id = CLAY_ID("LibraryFilterPill1");
-        bool pill1_hover = Clay_PointerOver(pill1_id);
-        uint8_t p1_bg = pill1_hover ? pill1_hover_val : pill1_val;
-        CLAY(pill1_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(74), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = (Clay_Color){p1_bg, p1_bg, p1_bg, 255}}) {
-        }
-
-        Clay_ElementId pill2_id = CLAY_ID("LibraryFilterPill2");
-        bool pill2_hover = Clay_PointerOver(pill2_id);
-        uint8_t p2_bg = pill2_hover ? pill2_hover_val : pill2_val;
-        CLAY(pill2_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(74), .height = CLAY_SIZING_GROW(0)}},
-              .backgroundColor = (Clay_Color){p2_bg, p2_bg, p2_bg, 255}}) {
-        }
-      }
-
-      // 3.4 Cards Grid: card borders transition from gray (75) to white (255) on fullscreen
-      uint8_t card_border_val = (uint8_t)(75.0f + (255.0f - 75.0f) * anim);
-
+      // 3.3 Cards Grid: Instance template matching mockup
       CLAY(CLAY_ID("LibraryCardsGrid"),
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                        .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIT(0)},
                        .childGap = 12}}) {
-        Clay_ElementId card1_id = CLAY_ID("LibraryCard1");
-        bool c1_hover = Clay_PointerOver(card1_id);
-        uint8_t c1_bcol = c1_hover ? 255 : card_border_val;
-        CLAY(card1_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(130),
-                                    .height = CLAY_SIZING_FIXED(180)}},
-              .border = {.color = (Clay_Color){c1_bcol, c1_bcol, c1_bcol, 255},
-                         .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
-              .backgroundColor = (Clay_Color){55, 55, 55, 255}}) {
-        }
-
-        Clay_ElementId card2_id = CLAY_ID("LibraryCard2");
-        bool c2_hover = Clay_PointerOver(card2_id);
-        uint8_t c2_bcol = c2_hover ? 255 : card_border_val;
-        CLAY(card2_id,
-             {.layout = {.sizing = {.width = CLAY_SIZING_FIXED(130),
-                                    .height = CLAY_SIZING_FIXED(180)}},
-              .border = {.color = (Clay_Color){c2_bcol, c2_bcol, c2_bcol, 255},
-                         .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
-              .backgroundColor = (Clay_Color){55, 55, 55, 255}}) {
-        }
+        render_library_instance_card(0, "name_instance", "Fabric 1.21.4", anim);
       }
     }
   }
