@@ -9,6 +9,19 @@ void overview_init(OverviewState *state) {
   }
   memset(state->search_query, 0, sizeof(state->search_query));
   state->active_filter = 0;
+  state->is_expanded = false;
+  state->animation_progress = 0.0f;
+}
+
+void overview_handle_wheel(OverviewState *state, float wheel_y) {
+  if (!state) {
+    return;
+  }
+  if (wheel_y < -0.01f) {
+    state->is_expanded = true;
+  } else if (wheel_y > 0.01f) {
+    state->is_expanded = false;
+  }
 }
 
 static void render_recent_instances_card(const SvgIconCache *icons) {
@@ -164,8 +177,29 @@ static void render_recent_servers_card(const SvgIconCache *icons) {
   }
 }
 
-void overview_render(OverviewState *state, const SvgIconCache *icons) {
-  (void)state;
+void overview_render(OverviewState *state, const SvgIconCache *icons, float delta_time) {
+  Clay_PointerData pointer = Clay_GetPointerState();
+
+  if (state) {
+    float target = state->is_expanded ? 1.0f : 0.0f;
+    float step = delta_time * 12.0f;
+    if (step > 1.0f) {
+      step = 1.0f;
+    }
+    state->animation_progress += (target - state->animation_progress) * step;
+    float diff = target - state->animation_progress;
+    if (diff < 0.0f) {
+      diff = -diff;
+    }
+    if (diff < 0.001f) {
+      state->animation_progress = target;
+    }
+    if (state->animation_progress < 0.0f) state->animation_progress = 0.0f;
+    if (state->animation_progress > 1.0f) state->animation_progress = 1.0f;
+  }
+
+  float anim = state ? state->animation_progress : 0.0f;
+  float top_height = 250.0f * (1.0f - anim);
 
   // Main Overview Container
   CLAY(CLAY_ID("OverviewContent"),
@@ -173,41 +207,53 @@ void overview_render(OverviewState *state, const SvgIconCache *icons) {
                    .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
         .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
     // 1. Top Section: Banner slot + Quick Launch Action Bar
-    CLAY(CLAY_ID("OverviewTopSection"),
-         {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
-                     .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(250)}}}) {
-      // Geometric banner placeholder (no real Minecraft cover as requested)
-      CLAY(CLAY_ID("BannerContainer"),
-           {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
-            .backgroundColor = (Clay_Color){12, 12, 12, 255}}) {
-      }
-
-      // Quick Launch Bar: RECENT INSTANCES + PLAY + RECENT SERVERS
-      CLAY(CLAY_ID("QuickLaunchBar"),
-           {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIT(0)},
-                       .padding = {16, 16, 10, 10},
-                       .childAlignment = {.y = CLAY_ALIGN_Y_BOTTOM}}}) {
-        render_recent_instances_card(icons);
-
-        CLAY(CLAY_ID("QuickLaunchSpacerLeft"),
-             {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}}}) {
+    if (top_height > 0.1f) {
+      CLAY(CLAY_ID("OverviewTopSection"),
+           {.layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM,
+                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(top_height)}},
+            .clip = {.vertical = true}}) {
+        // Geometric banner placeholder (no real Minecraft cover as requested)
+        CLAY(CLAY_ID("BannerContainer"),
+             {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}},
+              .backgroundColor = (Clay_Color){12, 12, 12, 255}}) {
         }
 
-        render_play_button();
+        // Quick Launch Bar: RECENT INSTANCES + PLAY + RECENT SERVERS
+        CLAY(CLAY_ID("QuickLaunchBar"),
+             {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                         .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIT(0)},
+                         .padding = {16, 16, 10, 10},
+                         .childAlignment = {.y = CLAY_ALIGN_Y_BOTTOM}}}) {
+          render_recent_instances_card(icons);
 
-        CLAY(CLAY_ID("QuickLaunchSpacerRight"),
-             {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}}}) {
+          CLAY(CLAY_ID("QuickLaunchSpacerLeft"),
+               {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}}}) {
+          }
+
+          render_play_button();
+
+          CLAY(CLAY_ID("QuickLaunchSpacerRight"),
+               {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}}}) {
+          }
+
+          render_recent_servers_card(icons);
         }
-
-        render_recent_servers_card(icons);
       }
     }
 
     // 2. Horizontal Divider
-    CLAY(CLAY_ID("OverviewSectionDivider"),
-         {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(1)}},
-          .backgroundColor = (Clay_Color){255, 255, 255, 255}}) {
+    Clay_ElementId divider_id = CLAY_ID("OverviewSectionDivider");
+    bool divider_hover = Clay_PointerOver(divider_id);
+    if (pointer.state == CLAY_POINTER_DATA_PRESSED_THIS_FRAME && divider_hover && state) {
+      state->is_expanded = !state->is_expanded;
+    }
+
+    if (anim < 0.999f) {
+      CLAY(divider_id,
+           {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(1)}},
+            .backgroundColor = divider_hover ? (Clay_Color){255, 255, 255, 255}
+                                             : (Clay_Color){200, 200, 200, 255}}) {
+      }
     }
 
     // 3. Library Section: LIBRARY // + Search Toolbar + Filter Pills + Cards Grid
@@ -216,14 +262,48 @@ void overview_render(OverviewState *state, const SvgIconCache *icons) {
                      .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
                      .padding = {16, 16, 16, 16},
                      .childGap = 12}}) {
-      // 3.1 Header badge [ LIBRARY // ]
-      CLAY(CLAY_ID("LibraryHeaderBadge"),
+      // 3.1 Header row with badge [ LIBRARY // ] and toggle button
+      CLAY(CLAY_ID("LibraryHeaderRow"),
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
-                       .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(22)},
-                       .padding = {.left = 0, .right = 14, .top = 0, .bottom = 0}},
-            .backgroundColor = (Clay_Color){143, 143, 143, 255}}) {
-        CLAY_TEXT(CLAY_STRING("LIBRARY //"),
-                  CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 22}));
+                       .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(22)},
+                       .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}}}) {
+        CLAY(CLAY_ID("LibraryHeaderBadge"),
+             {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                         .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(22)},
+                         .padding = {.left = 0, .right = 14, .top = 0, .bottom = 0}},
+              .backgroundColor = (Clay_Color){143, 143, 143, 255}}) {
+          CLAY_TEXT(CLAY_STRING("LIBRARY //"),
+                    CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 22}));
+        }
+
+        CLAY(CLAY_ID("LibraryHeaderSpacer"),
+             {.layout = {.sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}}}) {
+        }
+
+        Clay_ElementId toggle_id = CLAY_ID("LibraryFullscreenToggle");
+        bool toggle_hover = Clay_PointerOver(toggle_id);
+        if (pointer.state == CLAY_POINTER_DATA_PRESSED_THIS_FRAME && toggle_hover && state) {
+          state->is_expanded = !state->is_expanded;
+        }
+
+        CLAY(toggle_id,
+             {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
+                         .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(22)},
+                         .padding = {8, 8, 3, 3},
+                         .childAlignment = {.y = CLAY_ALIGN_Y_CENTER}},
+              .border = {.color = toggle_hover ? (Clay_Color){255, 255, 255, 255}
+                                               : (Clay_Color){80, 80, 80, 255},
+                         .width = {.left = 1, .right = 1, .top = 1, .bottom = 1, .betweenChildren = 0}},
+              .backgroundColor = toggle_hover ? (Clay_Color){35, 35, 35, 255}
+                                              : (Clay_Color){0, 0, 0, 255}}) {
+          if (state && state->is_expanded) {
+            CLAY_TEXT(CLAY_STRING("COLLAPSE [v]"),
+                      CLAY_TEXT_CONFIG({.textColor = {200, 200, 200, 255}, .fontSize = 11}));
+          } else {
+            CLAY_TEXT(CLAY_STRING("EXPAND [^]"),
+                      CLAY_TEXT_CONFIG({.textColor = {160, 160, 160, 255}, .fontSize = 11}));
+          }
+        }
       }
 
       // 3.2 Toolbar: Search Bar + 2 Action Buttons

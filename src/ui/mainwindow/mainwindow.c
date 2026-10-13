@@ -48,7 +48,7 @@ static void main_window_draw_frame(MainWindow *win) {
             .backgroundColor = (Clay_Color){0, 0, 0, 255}}) {
         switch (win->state.active_tab) {
         case TAB_OVERVIEW:
-          overview_render(&win->overview_state, &win->icons);
+          overview_render(&win->overview_state, &win->icons, delta_time);
           break;
         case TAB_MODS:
           mods_render(&win->mods_state);
@@ -93,9 +93,17 @@ static void main_window_process_events(MainWindow *win) {
       Clay_SetLayoutDimensions((Clay_Dimensions){(float)win->width, (float)win->height});
       break;
     }
-    case SDL_EVENT_MOUSE_WHEEL:
+    case SDL_EVENT_MOUSE_WHEEL: {
       Clay_UpdateScrollContainers(true, (Clay_Vector2){event.wheel.x, event.wheel.y}, 0.016f);
+      float wheel_y = event.wheel.y;
+      if (event.wheel.direction == SDL_MOUSEWHEEL_FLIPPED) {
+        wheel_y = -wheel_y;
+      }
+      if (win->state.active_tab == TAB_OVERVIEW) {
+        overview_handle_wheel(&win->overview_state, wheel_y);
+      }
       break;
+    }
     default:
       break;
     }
