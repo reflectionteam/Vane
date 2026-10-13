@@ -262,12 +262,13 @@ void overview_render(OverviewState *state, const SvgIconCache *icons, float delt
                      .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
                      .padding = {16, 16, 16, 16},
                      .childGap = 12}}) {
-      // 3.1 Header badge [ LIBRARY // ]
+      // 3.1 Header badge [ LIBRARY // ]: gray (143) in normal view, transitions to white (255) on fullscreen
+      uint8_t badge_val = (uint8_t)(143.0f + (255.0f - 143.0f) * anim);
       CLAY(CLAY_ID("LibraryHeaderBadge"),
            {.layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT,
                        .sizing = {.width = CLAY_SIZING_FIT(0), .height = CLAY_SIZING_FIXED(22)},
                        .padding = {.left = 0, .right = 14, .top = 0, .bottom = 0}},
-            .backgroundColor = (Clay_Color){255, 255, 255, 255}}) {
+            .backgroundColor = (Clay_Color){badge_val, badge_val, badge_val, 255}}) {
         CLAY_TEXT(CLAY_STRING("LIBRARY //"),
                   CLAY_TEXT_CONFIG({.textColor = {0, 0, 0, 255}, .fontSize = 22}));
       }
